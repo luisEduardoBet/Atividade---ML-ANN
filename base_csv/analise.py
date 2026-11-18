@@ -14,10 +14,11 @@ file['environment'] = file["environment"].map(aux)
 
 
 
+
+#colocar apos remover os nulls e outliers
 corr = file[cols].corr()
 labels = cols
-
-fig, ax = plt.subplots(figsize=(10, 8))   # aumente aqui
+fig, ax = plt.subplots(figsize=(10, 8)) 
 im = ax.imshow(corr, cmap="coolwarm", vmin=-1, vmax=1)
 
 ax.set_xticks(range(len(labels)), labels=labels, rotation=35, ha="right")

@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Input
 import numpy as np
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import classification_report, ConfusionMatrixDisplay
 
 colunas = ['Feature_1', 'Feature_2', 'Label']
-df = pd.read_csv('base-sintetica-15-labels.txt', sep='\t', skiprows=1, names=colunas)
+df = pd.read_csv('base-sintetica-15-labels.txt', sep='\t', header=None, names=colunas)
 df['Label'] = df['Label'].astype(int)
 
 X = df[['Feature_1', 'Feature_2']]
@@ -16,16 +16,17 @@ y = df['Label']
 
 # --- ETAPA 5: Separação dos Dados (70% Treino, 15% Validação, 15% Teste) ---
 
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.30, random_state=42)
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.30, random_state=42, stratify=y)
+
+print(y_train)
 
 X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.50, random_state=42)
 
-# --- ETAPA 4: Escalonamento dos Dados (StandardScaler) ---
+# --- ETAPA 4: Escalonamento dos Dados (MinMaxScaler) ---
 
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 
 X_train_scaled = scaler.fit_transform(X_train)
-
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
@@ -44,9 +45,7 @@ model = Sequential()
 
 model.add(Input(shape=(2,)))
 model.add(Dense(64, activation='relu'))
-
 model.add(Dense(32, activation='relu'))
-
 model.add(Dense(15, activation='softmax'))
 
 print("\n--- Arquitetura da Rede Neural ---")
@@ -57,7 +56,7 @@ model.summary()
 model.compile(
     optimizer='adam', 
     loss='sparse_categorical_crossentropy', 
-    metrics=['accuracy']
+    metrics=['accuracy'],
 )
 
 print("\n--- Iniciando o Treinamento ---")
@@ -66,7 +65,7 @@ history = model.fit(
     X_train_scaled, 
     y_train,
     validation_data=(X_val_scaled, y_val), 
-    epochs=100,      
+    epochs=300,      
     batch_size=32    
 )
 
@@ -93,7 +92,7 @@ plt.legend()
 plt.grid(True)
 
 plt.tight_layout()
-plt.savefig("lepo.png")
+plt.savefig("aprendizado.png")
 
 # --- ETAPA 9: Avaliação Final ---
 
@@ -113,4 +112,4 @@ disp = ConfusionMatrixDisplay.from_predictions(
     colorbar=True
 )
 disp.ax_.set_title('Matriz de Confusão - Dados de Teste (15%)')
-plt.savefig("lepo_2.png")
+plt.savefig("confusao.png")
