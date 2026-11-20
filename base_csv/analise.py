@@ -10,8 +10,7 @@ file = pd.read_csv("./base.csv", header=0)
 #1 pega a coluna enviroment e faz one hot enconding ( awk -F "," '{print $11}' base.csv | sort | uniq -c )
 
 file = pd.get_dummies(file,columns=["environment"], dtype=int)
-
-
+file['target'] = file.pop('target')
 
 cols = list(file.columns)[:-4]
 
@@ -27,7 +26,7 @@ for i in cols:
     file[i] = data.fillna(mediana)
 
 
-file.to_csv("./lepo.csv")
+file.to_csv("./base_ajustada.csv", index=False)
 
     
     
