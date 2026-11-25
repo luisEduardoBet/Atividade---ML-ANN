@@ -9,13 +9,16 @@ file = pd.read_csv("./base.csv", header=0)
 
 #1 pega a coluna enviroment e faz one hot enconding ( awk -F "," '{print $11}' base.csv | sort | uniq -c )
 
-file = pd.get_dummies(file,columns=["environment"], dtype=int)
-file['target'] = file.pop('target')
+# file = pd.get_dummies(file,columns=["environment"], dtype=int)
+# file['target'] = file.pop('target')
 
-cols = list(file.columns)[:-4]
+# cols = list(file.columns)[:-4]
+
+aux = {'cold': 1, 'mild': 2, 'hot':3}
+file['environment'] = file["environment"].map(aux)
 
 
-for i in cols: 
+for i in list(file.columns): 
 
     data = pd.to_numeric(file[i], errors="coerce")
     nulls = data.index[data.isnull()]
@@ -25,24 +28,26 @@ for i in cols:
     mediana = not_nulls.median()
     file[i] = data.fillna(mediana)
 
+    #Histograma
+    plt.figure()
+    plt.hist(not_nulls)
+    plt.title(f"Distribuição Dados - {i}")
+    plt.savefig(f"./histogramas/{i}.png")
+    plt.close()
+
+    # Boxplot
+    plt.figure()
+    plt.boxplot(not_nulls)
+    plt.title(i)
+    plt.savefig(f"./boxsplots/{i}.png")
+    plt.close()  
+
 
 file.to_csv("./base_ajustada.csv", index=False)
 
     
     
-# #Histograma
-    # plt.figure()
-    # plt.hist(not_nulls)
-    # plt.title(f"Distribuição Dados - {i}")
-    # plt.savefig(f"./histogramas/{i}.png")
-    # plt.close()
-
-    # # Boxplot
-    # plt.figure()
-    # plt.boxplot(not_nulls)
-    # plt.title(i)
-    # plt.savefig(f"./boxsplots/{i}.png")
-    # plt.close()    
+  
 
 #colocar apos remover os nulls e outliers
 # corr = file[cols].corr()

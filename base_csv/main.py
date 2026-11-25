@@ -15,11 +15,9 @@ X = df[cols[:-1]]
 y = df['target']
 
 
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.30, random_state=42, stratify=y)
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.30, random_state=30, stratify=y)
 
-print(y_train)
-
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.50, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.50, random_state=30)
 
 
 scaler = StandardScaler()
@@ -41,14 +39,14 @@ print(f"Amostras de Teste: {X_test_scaled.shape[0]} (15%)")
 model = Sequential()
 
 model.add(Input(shape=(X_train_scaled.shape[1],)))
-model.add(Dense(64, activation='relu'))
 model.add(Dense(32, activation='relu'))
+model.add(Dense(16, activation='relu'))
 model.add(Dense(2, activation='softmax'))
 
 print("\n--- Arquitetura da Rede Neural ---")
 model.summary()
 
-early_stop = EarlyStopping(monitor='val_loss', patience=10,
+early_stop = EarlyStopping(monitor='val_loss', patience=20,
                            restore_best_weights=True)
 
 
@@ -72,6 +70,7 @@ history = model.fit(
 # --- ETAPA 8: Validação (Curvas de Aprendizado) ---
 
 plt.figure(figsize=(12, 5))
+
 
 plt.subplot(1, 2, 1)
 plt.plot(history.history['loss'], label='Training Loss')
@@ -101,7 +100,8 @@ y_pred_prob = model.predict(X_test_scaled)
 y_pred = np.argmax(y_pred_prob, axis=1)
 
 
-print("\n--- Relatório de Classificação ---")
+print("\n--- Relatório de Classificação  ---")
+
 print(classification_report(y_test, y_pred))
 
 plt.figure(figsize=(12, 10))
